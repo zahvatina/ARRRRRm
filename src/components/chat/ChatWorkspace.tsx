@@ -3,7 +3,7 @@ import {
   resolveMailDetail,
   shouldShowMailWorkspace,
 } from "../../features/chat/model/mailWorkspace";
-import type { Conversation, OperatorInboxChannels } from "../../types/chat";
+import type { Conversation, OperatorInboxChannel } from "../../types/chat";
 import { EmptyState } from "../ui/EmptyState";
 import { ChatHeader } from "./ChatHeader";
 import { Composer } from "./Composer";
@@ -12,14 +12,14 @@ import { MessageThread } from "./MessageThread";
 
 type ChatWorkspaceProps = {
   conversation: Conversation | null;
-  operatorInbox: OperatorInboxChannels;
+  operatorInboxMode: OperatorInboxChannel;
   onSendMessage?: (text: string) => void;
   onChangeThreadTag?: (tag: string) => void;
 };
 
 export function ChatWorkspace({
   conversation,
-  operatorInbox,
+  operatorInboxMode,
   onSendMessage,
   onChangeThreadTag,
 }: ChatWorkspaceProps) {
@@ -27,8 +27,15 @@ export function ChatWorkspace({
 
   if (!conversation) {
     return (
-      <section className="panel panel--center" aria-label="Чат">
-        <EmptyState title="Выберите диалог" description="Слева список активных обращений." />
+      <section className="panel panel--center" aria-label={operatorInboxMode === "mail" ? "Почта" : "Чат"}>
+        <EmptyState
+          title={operatorInboxMode === "mail" ? "Нет обращений по почте" : "Выберите диалог"}
+          description={
+            operatorInboxMode === "mail"
+              ? "В очереди нет писем или выберите обращение в списке слева."
+              : "Слева список активных обращений."
+          }
+        />
       </section>
     );
   }
@@ -48,7 +55,7 @@ export function ChatWorkspace({
     return "";
   }, [conversation.messages]);
 
-  const mailMode = shouldShowMailWorkspace(conversation, operatorInbox);
+  const mailMode = shouldShowMailWorkspace(conversation, operatorInboxMode);
   const mailDetail = useMemo(
     () => (mailMode ? resolveMailDetail(conversation) : null),
     [conversation, mailMode],
@@ -62,7 +69,11 @@ export function ChatWorkspace({
       <div className={mailMode ? "chat-workspace__body chat-workspace__body--mail" : "chat-workspace__body"}>
         {mailMode && mailDetail ? (
           <div className="chat-workspace__mail-scroll">
-            <MailRequestView detail={mailDetail} />
+            <MailRequestView
+              detail={mailDetail}
+              threadTag={conversation.threadTag}
+              onChangeThreadTag={onChangeThreadTag}
+            />
           </div>
         ) : (
           <MessageThread messages={conversation.messages} threadTag={conversation.threadTag} />

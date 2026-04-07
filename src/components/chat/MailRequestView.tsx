@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { MailThreadDetail } from "../../types/chat";
+import { ThreadTagSelect } from "./ThreadTagSelect";
 
 function EnvelopeIcon() {
   return (
@@ -38,9 +39,11 @@ function ChevronIcon({ up }: { up: boolean }) {
 
 type MailRequestViewProps = {
   detail: MailThreadDetail;
+  threadTag: string;
+  onChangeThreadTag?: (tag: string) => void;
 };
 
-export function MailRequestView({ detail }: MailRequestViewProps) {
+export function MailRequestView({ detail, threadTag, onChangeThreadTag }: MailRequestViewProps) {
   const [expanded, setExpanded] = useState(true);
 
   return (
@@ -51,7 +54,11 @@ export function MailRequestView({ detail }: MailRequestViewProps) {
             <EnvelopeIcon />
           </div>
           <h2 className="mail-request__title">Обработка входящего обращения</h2>
-          <span className="mail-request__badge">{detail.statusLabel}</span>
+          <ThreadTagSelect
+            className="mail-request__thread-tag"
+            threadTag={threadTag}
+            onChangeThreadTag={onChangeThreadTag}
+          />
         </div>
         <div className="mail-request__header-aside">
           <time className="mail-request__time" dateTime={detail.receivedAt}>

@@ -205,7 +205,6 @@ export const mockConversations: Conversation[] = [
     mailDetail: {
       fromEmail: "g.matveev@mail.ru",
       subject: "Продление ОСАГО и класс КБМ",
-      statusLabel: "Новое",
       receivedAt: "07.04.2026 12:52",
       body: c1Messages[0]?.body ?? "",
     },
@@ -291,7 +290,6 @@ export const mockConversations: Conversation[] = [
     mailDetail: {
       fromEmail: "test@yandex.ru",
       subject: "Стоматология в полисе ДМС (Премиум+)",
-      statusLabel: "Новое",
       receivedAt: "23.03.2026 12:18",
       body: c4Messages[0]?.body ?? "",
     },
@@ -393,7 +391,6 @@ export const mockConversations: Conversation[] = [
     mailDetail: {
       fromEmail: "i.petrov@email.com",
       subject: "Вопрос по страховому случаю",
-      statusLabel: "Новое",
       receivedAt: "10.02.2026 14:15",
       body: c6PetrovBody,
     },

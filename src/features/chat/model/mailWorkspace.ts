@@ -1,20 +1,8 @@
-import type {
-  Conversation,
-  MailThreadDetail,
-  OperatorInboxChannel,
-  OperatorInboxChannels,
-} from "../../../types/chat";
+import type { Conversation, MailThreadDetail, OperatorInboxChannel } from "../../../types/chat";
 
-/** Почтовый макет: оператор принимает почту, а у обращения есть канал mail; чат показываем только если включён чат и у треда есть чат. */
-export function shouldShowMailWorkspace(conversation: Conversation, inbox: OperatorInboxChannels): boolean {
-  const ch: OperatorInboxChannel[] = conversation.operatorChannels?.length
-    ? conversation.operatorChannels
-    : ["chat"];
-  const hasMail = ch.includes("mail");
-  const hasChat = ch.includes("chat");
-  if (!hasMail || !inbox.mail) return false;
-  if (inbox.chat && hasChat) return false;
-  return true;
+/** Почтовый макет: в режиме «Почта» список слева уже отфильтрован по почте — всегда показываем карточку входящего письма. */
+export function shouldShowMailWorkspace(_conversation: Conversation, mode: OperatorInboxChannel): boolean {
+  return mode === "mail";
 }
 
 export function mailBodyFallback(conversation: Conversation): string {
@@ -34,7 +22,6 @@ export function resolveMailDetail(conversation: Conversation): MailThreadDetail 
   return {
     fromEmail: conversation.profile.email,
     subject: `Вопрос по теме «${conversation.threadTag}»`,
-    statusLabel: "Новое",
     receivedAt,
     body: mailBodyFallback(conversation),
   };

@@ -1,36 +1,65 @@
-import { useEffect, useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { ChatWorkspace } from "./components/chat/ChatWorkspace";
 import { ConversationsPanel } from "./components/conversations/ConversationsPanel";
 import { CustomerProfilePanel } from "./components/profile/CustomerProfilePanel";
 import {
-  DEFAULT_OPERATOR_INBOX,
+  DEFAULT_OPERATOR_INBOX_MODE,
   filterConversationsByInbox,
 } from "./features/chat/model/operatorInbox";
 import { mockConversations, queueStatsMock } from "./features/chat/model/mockData";
 import { todayCalendarDateRu } from "./features/chat/model/formatCalendarDate";
-import type { Conversation, OperatorInboxChannels } from "./types/chat";
+import type { Conversation, OperatorInboxChannel } from "./types/chat";
 
 export default function App() {
   const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
   const [selectedId, setSelectedId] = useState<string | null>("c4");
   const [leftCollapsed, setLeftCollapsed] = useState(false);
-  const [operatorInbox, setOperatorInbox] = useState<OperatorInboxChannels>(DEFAULT_OPERATOR_INBOX);
+  const [operatorInboxMode, setOperatorInboxMode] = useState<OperatorInboxChannel>(DEFAULT_OPERATOR_INBOX_MODE);
+  const prevInboxModeRef = useRef<OperatorInboxChannel>(operatorInboxMode);
 
-  const visibleConversations = useMemo(
-    () => filterConversationsByInbox(conversations, operatorInbox),
-    [conversations, operatorInbox],
+  /** Все обращения выбранного канала (до сжатия до одной карточки). */
+  const channelQueue = useMemo(
+    () => filterConversationsByInbox(conversations, operatorInboxMode),
+    [conversations, operatorInboxMode],
   );
+
+  /** В «Почта» и «Заявки» в очереди только текущее обращение; в «Чат» и «Звонки» — полный список канала. */
+  const visibleConversations = useMemo(() => {
+    if (operatorInboxMode !== "mail" && operatorInboxMode !== "tickets") {
+      return channelQueue;
+    }
+    if (selectedId) {
+      const current = channelQueue.find((c) => c.id === selectedId);
+      if (current) return [current];
+    }
+    return channelQueue[0] ? [channelQueue[0]] : [];
+  }, [channelQueue, operatorInboxMode, selectedId]);
 
   const selected = useMemo(
     () => conversations.find((c) => c.id === selectedId) ?? null,
     [conversations, selectedId],
   );
 
-  useEffect(() => {
-    if (selectedId && !visibleConversations.some((c) => c.id === selectedId)) {
-      setSelectedId(visibleConversations[0]?.id ?? null);
+  /** До отрисовки: выбранный id должен быть в очереди канала; при переходе на «Почта» — демо c6. */
+  useLayoutEffect(() => {
+    const ids = channelQueue.map((c) => c.id);
+    if (ids.length === 0) {
+      if (selectedId !== null) setSelectedId(null);
+      prevInboxModeRef.current = operatorInboxMode;
+      return;
     }
-  }, [selectedId, visibleConversations]);
+
+    const modeChanged = prevInboxModeRef.current !== operatorInboxMode;
+    prevInboxModeRef.current = operatorInboxMode;
+
+    if (modeChanged && operatorInboxMode === "mail" && ids.includes("c6")) {
+      setSelectedId("c6");
+      return;
+    }
+
+    if (selectedId && ids.includes(selectedId)) return;
+    setSelectedId(ids[0] ?? null);
+  }, [operatorInboxMode, channelQueue, selectedId]);
 
   const handleSend = (text: string) => {
     if (!selectedId) return;
@@ -74,8 +103,8 @@ export default function App() {
         operator={{
           name: "Марина Голованова",
           role: "Оператор поддержки",
-          inboxChannels: operatorInbox,
-          onInboxChannelsChange: setOperatorInbox,
+          inboxMode: operatorInboxMode,
+          onInboxModeChange: setOperatorInboxMode,
         }}
         activeCount={visibleConversations.length}
         queueStats={queueStatsMock}
@@ -84,7 +113,7 @@ export default function App() {
         <div className="workspace-main">
           <ChatWorkspace
             conversation={selected}
-            operatorInbox={operatorInbox}
+            operatorInboxMode={operatorInboxMode}
             onSendMessage={handleSend}
             onChangeThreadTag={handleChangeThreadTag}
           />

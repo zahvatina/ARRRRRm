@@ -1,7 +1,5 @@
-/** Каналы приёма обращений в очереди оператора */
+/** Режим очереди оператора (ровно один активен: чат, заявки, звонки или почта). */
 export type OperatorInboxChannel = "chat" | "tickets" | "calls" | "mail";
-
-export type OperatorInboxChannels = Record<OperatorInboxChannel, boolean>;
 
 export type MessageRole = "client" | "agent" | "system";
 
@@ -50,7 +48,6 @@ export type CustomerProfile = {
 export type MailThreadDetail = {
   fromEmail: string;
   subject: string;
-  statusLabel: string;
   /** Дата и время письма, напр. «10.02.2026 14:15» */
   receivedAt: string;
   body: string;

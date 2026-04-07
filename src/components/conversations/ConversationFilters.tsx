@@ -1,4 +1,4 @@
-import type { OperatorInboxChannels } from "../../types/chat";
+import type { OperatorInboxChannel } from "../../types/chat";
 import { Badge } from "../ui/Badge";
 import { OperatorMenu } from "../operator/OperatorMenu";
 
@@ -11,8 +11,8 @@ type ConversationFiltersProps = {
     name: string;
     role: string;
     photoUrl?: string;
-    inboxChannels?: OperatorInboxChannels;
-    onInboxChannelsChange?: (next: OperatorInboxChannels) => void;
+    inboxMode?: OperatorInboxChannel;
+    onInboxModeChange?: (next: OperatorInboxChannel) => void;
   };
 };
 
@@ -42,8 +42,8 @@ export function ConversationFilters({
                 name={operator.name}
                 role={operator.role}
                 photoUrl={operator.photoUrl}
-                inboxChannels={operator.inboxChannels}
-                onInboxChannelsChange={operator.onInboxChannelsChange}
+                inboxMode={operator.inboxMode}
+                onInboxModeChange={operator.onInboxModeChange}
               />
             </div>
           ) : null}
