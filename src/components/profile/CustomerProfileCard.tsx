@@ -12,24 +12,37 @@ function TabButton({
   active,
   children,
   onClick,
+  title,
+  ariaLabel,
 }: {
   active: boolean;
   children: React.ReactNode;
   onClick: () => void;
+  /** Полное название вкладки для подсказки при короткой подписи */
+  title?: string;
+  ariaLabel?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      title={title}
+      aria-label={ariaLabel}
       style={{
         border: active ? "1px solid var(--color-border)" : "1px solid transparent",
         background: active ? "#fff" : "transparent",
         color: active ? "var(--color-text)" : "var(--color-text-muted)",
-        fontSize: 12,
+        fontSize: 11,
         fontWeight: 600,
-        padding: "8px 10px",
+        padding: "7px 6px",
         borderRadius: 10,
         cursor: "pointer",
+        flex: "1 1 0",
+        minWidth: 0,
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        textAlign: "center",
       }}
     >
       {children}
@@ -377,9 +390,12 @@ export function CustomerProfileCard({ profile, onToggleClientSearch }: CustomerP
   const policies = profile.policies ?? [];
   const filteredPolicies = policies.filter((p) => {
     const s = p.status.toLowerCase();
-    if (policyFilter === "active") return s.includes("действ");
-    if (policyFilter === "offers") return s.includes("оффер") || s.includes("предлож");
-    return s.includes("заверш") || s.includes("истек") || s.includes("закрыт");
+    if (policyFilter === "active") {
+      if (s.includes("не действ") || s.includes("недейств") || s.includes("приостанов")) return false;
+      return s.includes("действ") || s.includes("активн");
+    }
+    if (policyFilter === "offers") return s.includes("оффер") || s.includes("офер") || s.includes("предлож");
+    return s.includes("заверш") || s.includes("истек") || s.includes("истёк") || s.includes("закрыт");
   });
 
   return (
@@ -455,30 +471,40 @@ export function CustomerProfileCard({ profile, onToggleClientSearch }: CustomerP
 
       <ImportantAlertsCarousel key={profile.clientId} />
 
-      <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
         <div
           style={{
             display: "flex",
-            gap: 6,
+            gap: 4,
             padding: 4,
             borderRadius: 12,
             background: "var(--color-bg)",
             border: "1px solid var(--color-border)",
-            flexWrap: "wrap",
+            flexWrap: "nowrap",
             flex: 1,
             minWidth: 0,
+            overflow: "hidden",
           }}
           role="tablist"
           aria-label="Разделы профиля"
         >
-          <TabButton active={tab === "contacts"} onClick={() => setTab("contacts")}>
+          <TabButton active={tab === "contacts"} onClick={() => setTab("contacts")} title="Контакты">
             Контакты
           </TabButton>
-          <TabButton active={tab === "policies"} onClick={() => setTab("policies")}>
-            Полисы и договоры
+          <TabButton
+            active={tab === "policies"}
+            onClick={() => setTab("policies")}
+            title={`Полисы и договоры${policies.length > 0 ? ` (${policies.length})` : ""}`}
+            ariaLabel={
+              policies.length > 0
+                ? `Полисы и договоры, ${policies.length} записей`
+                : "Полисы и договоры"
+            }
+          >
+            Полисы{policies.length > 0 ? ` · ${policies.length}` : ""}
           </TabButton>
-          <TabButton active={tab === "passport"} onClick={() => setTab("passport")}>
-            Паспортные данные
+          <TabButton active={tab === "passport"} onClick={() => setTab("passport")} title="Паспортные данные">
+            Паспорт
           </TabButton>
         </div>
         <button
@@ -514,7 +540,7 @@ export function CustomerProfileCard({ profile, onToggleClientSearch }: CustomerP
         <Divider />
 
         {tab === "contacts" ? (
-        <>
+          <>
           {/* Телефоны — компактно одним блоком */}
           {(phone1 || phone2) ? (
             <div style={{ padding: "4px 0" }}>
@@ -634,8 +660,10 @@ export function CustomerProfileCard({ profile, onToggleClientSearch }: CustomerP
             }
             secondary="Адрес"
           />
-        </>
-      ) : tab === "passport" ? (
+          </>
+        ) : null}
+
+        {tab === "passport" ? (
         profile.passport ? (
           <div style={{ fontSize: 13, color: "var(--color-text)" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -672,7 +700,10 @@ export function CustomerProfileCard({ profile, onToggleClientSearch }: CustomerP
             Нет данных паспорта.
           </div>
         )
-      ) : policies.length ? (
+        ) : null}
+
+        {tab === "policies" ? (
+        policies.length > 0 ? (
         <div style={{ padding: "6px 0" }}>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", paddingBottom: 10 }}>
             <FilterChip active={policyFilter === "active"} onClick={() => setPolicyFilter("active")}>
@@ -730,9 +761,10 @@ export function CustomerProfileCard({ profile, onToggleClientSearch }: CustomerP
             )}
           </div>
         </div>
-      ) : (
-        <div style={{ fontSize: 13, color: "var(--color-text-muted)", padding: "10px 0" }}>Нет полисов.</div>
-      )}
+        ) : (
+          <div style={{ fontSize: 13, color: "var(--color-text-muted)", padding: "10px 0" }}>Нет полисов.</div>
+        )
+        ) : null}
       </div>
     </div>
     <ContactChannelModalPortal state={channelModal} onClose={() => setChannelModal(null)} />

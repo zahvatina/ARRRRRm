@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   resolveMailDetail,
   shouldShowMailWorkspace,
@@ -8,6 +8,8 @@ import {
   resolveTicketClaimForm,
   shouldShowTicketsWorkspace,
 } from "../../features/chat/model/ticketWorkspace";
+import { getOperatorHintVariants } from "../../features/chat/model/operatorHints";
+import { getLastClientContextText } from "../../features/chat/model/conversationClientText";
 import type { Conversation, OperatorInboxChannel } from "../../types/chat";
 import { EmptyState } from "../ui/EmptyState";
 import { ChatHeader } from "./ChatHeader";
@@ -31,6 +33,20 @@ export function ChatWorkspace({
   onChangeThreadTag,
 }: ChatWorkspaceProps) {
   const [draft, setDraft] = useState("");
+
+  const lastClientMessage = useMemo(
+    () => (conversation ? getLastClientContextText(conversation) : ""),
+    [conversation],
+  );
+
+  useEffect(() => {
+    if (!conversation) {
+      setDraft("");
+      return;
+    }
+    const hint = getOperatorHintVariants(conversation.threadTag, getLastClientContextText(conversation))[0] ?? "";
+    setDraft(hint);
+  }, [conversation?.id]);
 
   if (!conversation) {
     return (
@@ -76,14 +92,6 @@ export function ChatWorkspace({
     onSendMessage(t);
     setDraft("");
   };
-
-  const lastClientMessage = useMemo(() => {
-    for (let i = conversation.messages.length - 1; i >= 0; i--) {
-      const m = conversation.messages[i];
-      if (m.role === "client") return m.body;
-    }
-    return "";
-  }, [conversation.messages]);
 
   const mailMode = shouldShowMailWorkspace(conversation, operatorInboxMode);
   const ticketsMode = shouldShowTicketsWorkspace(operatorInboxMode);

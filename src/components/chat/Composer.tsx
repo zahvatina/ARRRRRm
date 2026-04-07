@@ -1,4 +1,5 @@
 import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
+import { getOperatorHintVariants } from "../../features/chat/model/operatorHints";
 import { getReplyTemplates, scoreTemplatesForDialog } from "../../features/chat/model/templateRecommendationScores";
 import { SendButton } from "./SendButton";
 
@@ -68,20 +69,12 @@ export const Composer = forwardRef<HTMLTextAreaElement, ComposerProps>(function 
     return rows;
   }, [threadTag, lastClientMessage]);
 
-  const hintText = useMemo(
-    () => "Ожидайте доставку сегодня 21.03 в интервале 14:30 — 16:00. Курьер свяжется с вами за полчаса.",
-    [],
+  const hintVariants = useMemo(
+    () => getOperatorHintVariants(threadTag, lastClientMessage),
+    [threadTag, lastClientMessage],
   );
 
-  const hintVariants = useMemo(
-    () => [
-      hintText,
-      "Ожидайте доставку сегодня 21.03: интервал 14:30–16:00. Курьер свяжется с вами примерно за 30 минут.",
-      "Доставка запланирована на сегодня, 21.03, в промежутке 14:30–16:00. Курьер позвонит за полчаса до приезда.",
-      "Сегодня, 21.03, ожидайте доставку с 14:30 до 16:00. Курьер предупредит вас звонком за 30 минут.",
-    ],
-    [hintText],
-  );
+  const hintText = hintVariants[0] ?? "";
 
   const regenerateHint = () => {
     const current = value.trim();
@@ -98,13 +91,6 @@ export const Composer = forwardRef<HTMLTextAreaElement, ComposerProps>(function 
     el.style.height = "0px";
     el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
   }, [value, mode, templatesOpen]);
-
-  useEffect(() => {
-    if (mode !== "hint") return;
-    if (value.trim()) return;
-    // MVP-подсказка: подставляем текст, чтобы было как на прототипе.
-    onChange(hintText);
-  }, [mode, onChange, value, hintText]);
 
   useEffect(() => {
     if (mode !== "templates") setTemplatesOpen(false);
