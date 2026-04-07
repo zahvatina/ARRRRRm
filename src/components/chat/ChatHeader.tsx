@@ -122,12 +122,14 @@ export function ChatHeader({ customerName }: ChatHeaderProps) {
         <IconButton label="Заметка">
           <NoteIcon />
         </IconButton>
-        <IconButton label="Закрыть">
-          <CloseIcon />
-        </IconButton>
         <IconButton label="Профиль">
           <UserIcon />
         </IconButton>
+        <span style={{ color: "#e87575" }}>
+          <IconButton label="Закрыть">
+            <CloseIcon />
+          </IconButton>
+        </span>
       </div>
     </header>
   );

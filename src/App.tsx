@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { ChatWorkspace } from "./components/chat/ChatWorkspace";
 import { ConversationsPanel } from "./components/conversations/ConversationsPanel";
 import { CustomerProfilePanel } from "./components/profile/CustomerProfilePanel";
-import { WorkspaceTopBar } from "./components/workspace/WorkspaceTopBar";
 import {
   activeConversationsCount,
   mockConversations,
@@ -13,6 +12,7 @@ import type { Conversation } from "./types/chat";
 export default function App() {
   const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
   const [selectedId, setSelectedId] = useState<string | null>("c4");
+  const [leftCollapsed, setLeftCollapsed] = useState(false);
 
   const selected = useMemo(
     () => conversations.find((c) => c.id === selectedId) ?? null,
@@ -44,21 +44,21 @@ export default function App() {
   };
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell${leftCollapsed ? " app-shell--leftCollapsed" : ""}`}>
       <ConversationsPanel
         conversations={conversations}
         selectedId={selectedId}
         onSelect={setSelectedId}
+        collapsed={leftCollapsed}
+        onToggleCollapsed={() => setLeftCollapsed((v) => !v)}
+        operator={{
+          name: "Марина Голованова",
+          role: "Оператор поддержки",
+        }}
         activeCount={activeConversationsCount}
         queueStats={queueStatsMock}
       />
       <div className="workspace">
-        <WorkspaceTopBar
-          operator={{
-            name: "Марина Голованова",
-            role: "Оператор поддержки",
-          }}
-        />
         <div className="workspace-main">
           <ChatWorkspace conversation={selected} onSendMessage={handleSend} />
           <CustomerProfilePanel profile={selected?.profile ?? null} />

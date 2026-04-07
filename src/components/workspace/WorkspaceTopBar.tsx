@@ -33,7 +33,6 @@ type WorkspaceTopBarProps = {
 export function WorkspaceTopBar({ operator }: WorkspaceTopBarProps) {
   return (
     <div className="workspace-topbar" aria-label="Панель рабочей области">
-      <div />
       <div className="workspace-actions">
         <div className="workspace-icon" aria-hidden>
           <IconButton label="Уведомления">
@@ -42,6 +41,7 @@ export function WorkspaceTopBar({ operator }: WorkspaceTopBarProps) {
         </div>
         <OperatorMenu name={operator.name} role={operator.role} photoUrl={operator.photoUrl} />
       </div>
+      <div style={{ flex: 1 }} />
     </div>
   );
 }

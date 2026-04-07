@@ -305,9 +305,11 @@ export function CustomerProfileCard({ profile, onToggleClientSearch }: CustomerP
                   {phone1 ? (
                     <div style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "4px 0" }}>
                       <div style={{ minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 400, lineHeight: 1.25 }}>{phone1.number}</div>
-                        <div style={{ fontSize: 11, color: "var(--color-text-muted)", marginTop: 2 }}>
-                          {phone1.label}
+                        <div style={{ fontSize: 13, fontWeight: 400, lineHeight: 1.25 }}>
+                          {phone1.number}{" "}
+                          <span style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
+                            {phone1.label}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -315,9 +317,11 @@ export function CustomerProfileCard({ profile, onToggleClientSearch }: CustomerP
                   {phone2 ? (
                     <div style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "4px 0" }}>
                       <div style={{ minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 400, lineHeight: 1.25 }}>{phone2.number}</div>
-                        <div style={{ fontSize: 11, color: "var(--color-text-muted)", marginTop: 2 }}>
-                          {phone2.label}
+                        <div style={{ fontSize: 13, fontWeight: 400, lineHeight: 1.25 }}>
+                          {phone2.number}{" "}
+                          <span style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
+                            {phone2.label}
+                          </span>
                         </div>
                       </div>
                       <div style={{ display: "flex", gap: 10, color: "var(--color-primary)", flexShrink: 0 }}>
@@ -342,6 +346,18 @@ export function CustomerProfileCard({ profile, onToggleClientSearch }: CustomerP
             }
           />
 
+          {profile.passport?.registrationAddress ? (
+            <ContactRow
+              icon={<LocationIcon />}
+              primary={
+                <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {profile.passport.registrationAddress}
+                </span>
+              }
+              secondary="Адрес регистрации"
+            />
+          ) : null}
+
           <ContactRow
             icon={<LocationIcon />}
             primary={
@@ -349,6 +365,7 @@ export function CustomerProfileCard({ profile, onToggleClientSearch }: CustomerP
                 {profile.address}
               </span>
             }
+            secondary="Адрес"
           />
         </>
       ) : tab === "passport" ? (
@@ -373,12 +390,14 @@ export function CustomerProfileCard({ profile, onToggleClientSearch }: CustomerP
               </div>
             </div>
             <div style={{ marginTop: 10 }}>
-              <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>Кем выдан</div>
-              <div style={{ marginTop: 2 }}>{profile.passport.issuedBy}</div>
-            </div>
-            <div style={{ marginTop: 10 }}>
-              <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>Адрес регистрации</div>
-              <div style={{ marginTop: 2 }}>{profile.passport.registrationAddress}</div>
+              <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
+                Кем выдан · Адрес регистрации
+              </div>
+              <div style={{ marginTop: 2, display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <span>{profile.passport.issuedBy}</span>
+                <span style={{ color: "var(--color-text-muted)" }}>—</span>
+                <span>{profile.passport.registrationAddress}</span>
+              </div>
             </div>
           </div>
         ) : (

@@ -7,14 +7,49 @@ type ConversationListItemProps = {
   conversation: Conversation;
   selected: boolean;
   onSelect: () => void;
+  compact?: boolean;
 };
 
 export function ConversationListItem({
   conversation,
   selected,
   onSelect,
+  compact = false,
 }: ConversationListItemProps) {
   const { customerName, lastPreview, lastTime, unreadCount, avatarUrl } = conversation;
+
+  if (compact) {
+    return (
+      <button
+        type="button"
+        onClick={onSelect}
+        aria-current={selected ? "true" : undefined}
+        title={customerName}
+        style={{
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "10px 8px",
+          border: selected ? "1px solid var(--color-primary)" : "1px solid transparent",
+          borderRadius: 12,
+          background: selected ? "#e8eefc" : "transparent",
+          cursor: "pointer",
+          marginBottom: 6,
+          position: "relative",
+        }}
+      >
+        <ConversationAvatar name={customerName} src={avatarUrl} />
+        {unreadCount ? (
+          <span style={{ position: "absolute", top: 6, right: 6 }}>
+            <Badge variant="primary" title="Непрочитанные">
+              {unreadCount}
+            </Badge>
+          </span>
+        ) : null}
+      </button>
+    );
+  }
 
   return (
     <button

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Input } from "../ui/Input";
 
 type WidgetDef = {
@@ -7,7 +7,28 @@ type WidgetDef = {
   keywords: string[];
 };
 
-// Каталог виджетов будет добавлен следующим шагом (поиск сейчас только UI).
+const WIDGETS: WidgetDef[] = [
+  {
+    id: "claims",
+    title: "Урегулирование убытка",
+    keywords: ["убыток", "урегулирование", "claims"],
+  },
+  {
+    id: "offer",
+    title: "Оффер для клиента",
+    keywords: ["оффер", "предложение", "offer"],
+  },
+  {
+    id: "events",
+    title: "Страховые события",
+    keywords: ["события", "страховые", "events"],
+  },
+  {
+    id: "history",
+    title: "История обращений",
+    keywords: ["история", "обращений", "history", "обращения"],
+  },
+];
 
 function CloseIcon() {
   return (
@@ -85,7 +106,25 @@ export function WidgetsWorkspace() {
   const [openTabs, setOpenTabs] = useState<WidgetDef[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
 
+  const results = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    return WIDGETS.filter((w) => {
+      const hay = [w.title, ...w.keywords].join(" ").toLowerCase();
+      return hay.includes(q);
+    }).slice(0, 6);
+  }, [query]);
+
   const activeTab = openTabs.find((t) => t.id === activeId) ?? null;
+
+  const openWidget = (w: WidgetDef) => {
+    setOpenTabs((prev) => {
+      if (prev.some((t) => t.id === w.id)) return prev;
+      return [...prev, w];
+    });
+    setActiveId(w.id);
+    setQuery("");
+  };
 
   const closeWidget = (id: string) => {
     setOpenTabs((prev) => {
@@ -104,13 +143,60 @@ export function WidgetsWorkspace() {
       <div style={{ fontSize: 12, fontWeight: 600, color: "var(--color-text-muted)", marginBottom: 8 }}>
         Поиск по виджетам
       </div>
-      <Input
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Начните вводить название виджета…"
-        aria-label="Поиск по виджетам"
-        style={{ padding: "10px 12px" }}
-      />
+      <div style={{ position: "relative" }}>
+        <Input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Начните вводить название виджета…"
+          aria-label="Поиск по виджетам"
+          style={{ padding: "10px 12px" }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && results.length) {
+              e.preventDefault();
+              openWidget(results[0]);
+            }
+          }}
+        />
+        {results.length ? (
+          <div
+            role="listbox"
+            aria-label="Результаты поиска виджетов"
+            style={{
+              position: "absolute",
+              top: 44,
+              left: 0,
+              right: 0,
+              background: "#fff",
+              border: "1px solid var(--color-border)",
+              borderRadius: 12,
+              boxShadow: "0 10px 24px rgba(0,0,0,0.08)",
+              overflow: "hidden",
+              zIndex: 5,
+            }}
+          >
+            {results.map((w) => (
+              <button
+                key={w.id}
+                type="button"
+                role="option"
+                onClick={() => openWidget(w)}
+                style={{
+                  width: "100%",
+                  textAlign: "left",
+                  padding: "10px 12px",
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                  fontSize: 12,
+                  color: "var(--color-text)",
+                }}
+              >
+                {w.title}
+              </button>
+            ))}
+          </div>
+        ) : null}
+      </div>
 
       <div style={{ marginTop: 12 }}>
         <div
@@ -138,7 +224,7 @@ export function WidgetsWorkspace() {
             <div>
               <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>{activeTab.title}</div>
               <div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>
-                Здесь будет содержимое виджета «{activeTab.title}». Сейчас это заглушка.
+                Здесь будет содержимое виджета «{activeTab.title}». Сейчас это MVP-заглушка.
               </div>
             </div>
           ) : (

@@ -1,5 +1,4 @@
 import type { Message } from "../../types/chat";
-import { Avatar } from "../ui/Avatar";
 import { MessageMeta } from "./MessageMeta";
 
 type MessageBubbleProps = {
@@ -15,14 +14,13 @@ export function MessageBubble({ message }: MessageBubbleProps) {
     <div
       style={{
         display: "flex",
-        gap: 10,
+        gap: 0,
         alignItems: "flex-start",
         maxWidth: "92%",
         alignSelf: isClient ? "flex-start" : "flex-end",
         flexDirection: "row",
       }}
     >
-      <Avatar name={message.authorName} size="sm" />
       <div
         style={{
           background: bubbleBg,

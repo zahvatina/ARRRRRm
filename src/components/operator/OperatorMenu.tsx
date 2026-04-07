@@ -45,20 +45,6 @@ function CheckIcon() {
   );
 }
 
-function ChevronDownIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M6 9l6 6 6-6"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
 function ExitIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -167,9 +153,52 @@ export function OperatorMenu({ name, role, photoUrl }: OperatorMenuProps) {
   const [status, setStatus] = useState<OperatorStatus>("active");
   const [soundOn, setSoundOn] = useState(true);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const menuId = useId();
+  const [menuPos, setMenuPos] = useState<{ top: number; left: number; origin: "top" | "bottom" } | null>(null);
 
   useOnClickOutside(wrapperRef, () => setOpen(false), open);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const recompute = () => {
+      const trigger = triggerRef.current;
+      const menu = menuRef.current;
+      if (!trigger || !menu) return;
+
+      const rect = trigger.getBoundingClientRect();
+      const menuRect = menu.getBoundingClientRect();
+      const gap = 10;
+      const viewportPad = 8;
+
+      // Horizontal: align right edge with trigger, but keep inside viewport.
+      let left = rect.right - menuRect.width;
+      left = Math.max(viewportPad, Math.min(left, window.innerWidth - menuRect.width - viewportPad));
+
+      // Vertical: open down by default; if not enough room, flip up.
+      let top = rect.bottom + gap;
+      let origin: "top" | "bottom" = "top";
+      if (top + menuRect.height > window.innerHeight - viewportPad) {
+        top = rect.top - gap - menuRect.height;
+        origin = "bottom";
+      }
+      top = Math.max(viewportPad, Math.min(top, window.innerHeight - menuRect.height - viewportPad));
+
+      setMenuPos({ top, left, origin });
+    };
+
+    // Wait a frame so the menu is in DOM and measurable.
+    const raf = requestAnimationFrame(recompute);
+    window.addEventListener("resize", recompute);
+    window.addEventListener("scroll", recompute, true);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", recompute);
+      window.removeEventListener("scroll", recompute, true);
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -187,6 +216,7 @@ export function OperatorMenu({ name, role, photoUrl }: OperatorMenuProps) {
       <button
         type="button"
         className="operator-trigger"
+        ref={triggerRef}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={menuId}
@@ -200,7 +230,24 @@ export function OperatorMenu({ name, role, photoUrl }: OperatorMenuProps) {
       </button>
 
       {open ? (
-        <div id={menuId} className="operator-menu" role="menu" aria-label="Меню оператора">
+        <div
+          id={menuId}
+          ref={menuRef}
+          className="operator-menu"
+          role="menu"
+          aria-label="Меню оператора"
+          style={
+            menuPos
+              ? {
+                  position: "fixed",
+                  top: menuPos.top,
+                  left: menuPos.left,
+                  transformOrigin: menuPos.origin === "top" ? "top right" : "bottom right",
+                  zIndex: 1000,
+                }
+              : { position: "fixed", top: 0, left: 0, opacity: 0, pointerEvents: "none", zIndex: 1000 }
+          }
+        >
           <div className="operator-menu__header">
             <div className="operator-menu__title">ПРОФИЛЬ</div>
             <div className="operator-menu__name">{name}</div>
@@ -218,11 +265,7 @@ export function OperatorMenu({ name, role, photoUrl }: OperatorMenuProps) {
               >
                 <span className={`status-dot status-dot--${s}`} aria-hidden />
                 <span className="operator-menu__rowText">{statusLabel(s)}</span>
-                {s === "inactive" ? (
-                  <span className="operator-menu__rowRight" aria-hidden>
-                    <ChevronDownIcon />
-                  </span>
-                ) : status === s ? (
+                {status === s && s !== "inactive" ? (
                   <span className="operator-menu__rowRight" aria-hidden>
                     <CheckIcon />
                   </span>
