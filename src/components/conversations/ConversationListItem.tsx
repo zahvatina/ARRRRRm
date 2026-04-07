@@ -46,7 +46,17 @@ export function ConversationListItem({
             marginBottom: 4,
           }}
         >
-          <span style={{ fontWeight: 600, fontSize: 14, overflow: "hidden", textOverflow: "ellipsis" }}>
+          <span
+            style={{
+              fontWeight: 600,
+              fontSize: 13,
+              lineHeight: 1.2,
+              whiteSpace: "normal",
+              overflowWrap: "anywhere",
+              flex: 1,
+              minWidth: 0,
+            }}
+          >
             {customerName}
           </span>
           <ConversationMeta time={lastTime} />

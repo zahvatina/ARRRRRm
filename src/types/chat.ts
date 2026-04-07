@@ -10,11 +10,33 @@ export type Message = {
 
 export type CustomerProfile = {
   name: string;
-  segmentLabel: string;
   email: string;
-  city: string;
-  services: string[];
   clientId: number;
+  vip?: boolean;
+  phones: { number: string; label: string }[];
+  birthDate: string; // DD.MM.YYYY
+  age: number;
+  address: string;
+  statusLabel: string;
+  segmentLabel: string;
+  clientSince: string; // DD.MM.YYYY
+  loyaltyPoints: number;
+  passport?: {
+    series: string;
+    number: string;
+    issuedBy: string;
+    issuedDate: string; // DD.MM.YYYY
+    code: string;
+    registrationAddress: string;
+  };
+  policies?: {
+    id: string;
+    type: string;
+    number: string;
+    status: string;
+    from: string; // DD.MM.YYYY
+    to: string; // DD.MM.YYYY
+  }[];
 };
 
 export type Conversation = {

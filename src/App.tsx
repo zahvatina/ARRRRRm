@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { ChatWorkspace } from "./components/chat/ChatWorkspace";
 import { ConversationsPanel } from "./components/conversations/ConversationsPanel";
 import { CustomerProfilePanel } from "./components/profile/CustomerProfilePanel";
+import { WorkspaceTopBar } from "./components/workspace/WorkspaceTopBar";
 import {
   activeConversationsCount,
   mockConversations,
@@ -51,8 +52,18 @@ export default function App() {
         activeCount={activeConversationsCount}
         queueStats={queueStatsMock}
       />
-      <ChatWorkspace conversation={selected} onSendMessage={handleSend} />
-      <CustomerProfilePanel profile={selected?.profile ?? null} />
+      <div className="workspace">
+        <WorkspaceTopBar
+          operator={{
+            name: "Марина Голованова",
+            role: "Оператор поддержки",
+          }}
+        />
+        <div className="workspace-main">
+          <ChatWorkspace conversation={selected} onSendMessage={handleSend} />
+          <CustomerProfilePanel profile={selected?.profile ?? null} />
+        </div>
+      </div>
     </div>
   );
 }

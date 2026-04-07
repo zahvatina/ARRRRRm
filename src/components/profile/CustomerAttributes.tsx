@@ -19,11 +19,12 @@ function Row({ label, value, withDivider }: { label: string; value: string; with
 }
 
 export function CustomerAttributes({ profile }: CustomerAttributesProps) {
-  const services = profile.services.join(", ");
+  const services = (profile as unknown as { services?: string[] }).services?.join(", ") ?? "";
+  const city = (profile as unknown as { city?: string }).city ?? "";
   return (
     <div style={{ padding: "0 16px 16px" }}>
-      <Row label="Город" value={profile.city} withDivider />
-      <Row label="Услуги" value={services} withDivider />
+      {city ? <Row label="Город" value={city} withDivider /> : null}
+      {services ? <Row label="Услуги" value={services} withDivider /> : null}
       <Row label="ID клиента" value={String(profile.clientId)} withDivider />
     </div>
   );
