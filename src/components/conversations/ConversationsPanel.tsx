@@ -51,6 +51,7 @@ export function ConversationsPanel({
         selectedId={selectedId}
         onSelect={onSelect}
         compact={collapsed}
+        inboxMode={operator?.inboxMode}
       />
       {!collapsed ? <QueueStatsFooter stats={queueStats} /> : null}
     </section>

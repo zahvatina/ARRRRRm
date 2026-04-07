@@ -1,13 +1,23 @@
-import type { Conversation } from "../../types/chat";
+import type { Conversation, OperatorInboxChannel } from "../../types/chat";
 import { Badge } from "../ui/Badge";
 import { ConversationAvatar } from "./ConversationAvatar";
 import { ConversationMeta } from "./ConversationMeta";
+
+function listPreviewLine(c: Conversation, inboxMode?: OperatorInboxChannel): string {
+  const channels: OperatorInboxChannel[] = c.operatorChannels?.length ? c.operatorChannels : ["chat"];
+  if (inboxMode === "calls" && channels.includes("calls")) {
+    const phone = c.callSession?.displayNumber ?? c.profile.phones[0]?.number ?? "—";
+    return `${phone} · Звонок активен`;
+  }
+  return c.lastPreview;
+}
 
 type ConversationListItemProps = {
   conversation: Conversation;
   selected: boolean;
   onSelect: () => void;
   compact?: boolean;
+  inboxMode?: OperatorInboxChannel;
 };
 
 export function ConversationListItem({
@@ -15,8 +25,10 @@ export function ConversationListItem({
   selected,
   onSelect,
   compact = false,
+  inboxMode,
 }: ConversationListItemProps) {
-  const { customerName, lastPreview, lastTime, unreadCount, avatarUrl } = conversation;
+  const { customerName, lastTime, unreadCount, avatarUrl } = conversation;
+  const previewLine = listPreviewLine(conversation, inboxMode);
 
   if (compact) {
     return (
@@ -105,7 +117,7 @@ export function ConversationListItem({
             whiteSpace: "nowrap",
           }}
         >
-          {lastPreview}
+          {previewLine}
         </div>
       </div>
       {unreadCount ? (

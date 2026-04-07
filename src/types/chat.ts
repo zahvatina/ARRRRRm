@@ -53,6 +53,36 @@ export type MailThreadDetail = {
   body: string;
 };
 
+/** Строка распознанной речи в режиме «Звонки». */
+export type CallTranscriptLine = {
+  speaker: "client" | "agent";
+  /** Метка времени в ленте транскрипции */
+  time: string;
+  text: string;
+};
+
+/** Параметры активного звонка для шапки рабочей области. */
+export type CallSessionInfo = {
+  displayNumber: string;
+  /** Стартовое значение таймера, сек (для демо). */
+  elapsedSeconds?: number;
+};
+
+/** Электронная заявка на урегулирование убытков, полученная от клиента (режим «Заявки»). */
+export type ClientClaimSettlementForm = {
+  applicantName: string;
+  contactEmail: string;
+  contactPhone: string;
+  /** Дата/время подачи заявки */
+  submittedAt: string;
+  productLabel: string;
+  policyNumber: string;
+  eventDateTime: string;
+  eventPlace: string;
+  vehiclePlate?: string;
+  description: string;
+};
+
 export type Conversation = {
   id: string;
   customerName: string;
@@ -61,6 +91,12 @@ export type Conversation = {
   operatorChannels?: OperatorInboxChannel[];
   /** Если задано и активен почтовый режим — блок «обработка входящего обращения». */
   mailDetail?: MailThreadDetail;
+  /** Заявка клиента на урегулирование (режим «Заявки» в центральной панели). */
+  ticketClaim?: ClientClaimSettlementForm;
+  /** Транскрибация звонка (режим «Звонки»). */
+  callTranscript?: CallTranscriptLine[];
+  /** Номер и таймер для панели звонка. */
+  callSession?: CallSessionInfo;
   avatarUrl?: string;
   lastPreview: string;
   lastTime: string;

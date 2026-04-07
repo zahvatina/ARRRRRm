@@ -57,6 +57,11 @@ export default function App() {
       return;
     }
 
+    if (modeChanged && operatorInboxMode === "calls" && ids.includes("c5")) {
+      setSelectedId("c5");
+      return;
+    }
+
     if (selectedId && ids.includes(selectedId)) return;
     setSelectedId(ids[0] ?? null);
   }, [operatorInboxMode, channelQueue, selectedId]);

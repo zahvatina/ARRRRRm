@@ -6,9 +6,16 @@ type ThreadTagSelectProps = {
   onChangeThreadTag?: (tag: string) => void;
   /** Доп. класс на обёртку (например, для сжатия в шапке письма). */
   className?: string;
+  /** В одну линию с кнопками шапки (36px), как в чате / звонках. */
+  variant?: "default" | "toolbar";
 };
 
-export function ThreadTagSelect({ threadTag, onChangeThreadTag, className }: ThreadTagSelectProps) {
+export function ThreadTagSelect({
+  threadTag,
+  onChangeThreadTag,
+  className,
+  variant = "default",
+}: ThreadTagSelectProps) {
   const theme = threadTagTheme(threadTag);
   const selectValue = THREAD_TAG_OPTIONS.includes(threadTag as (typeof THREAD_TAG_OPTIONS)[number])
     ? threadTag
@@ -21,17 +28,25 @@ export function ThreadTagSelect({ threadTag, onChangeThreadTag, className }: Thr
     return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
   }, [theme.color]);
 
+  const widthExtra = variant === "toolbar" ? 40 : 36;
+
   useLayoutEffect(() => {
     const textW = measureRef.current?.getBoundingClientRect().width ?? 0;
     const el = selectRef.current;
     if (!el || !textW) return;
-    const next = Math.min(Math.ceil(textW) + 36, 280);
+    const next = Math.min(Math.ceil(textW) + widthExtra, 280);
     el.style.width = `${next}px`;
-  }, [selectValue]);
+  }, [selectValue, widthExtra]);
 
   return (
     <div
-      className={`chat-header__thread${className ? ` ${className}` : ""}`}
+      className={[
+        "chat-header__thread",
+        variant === "toolbar" ? "chat-header__thread--toolbar" : "",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
       style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}
     >
       <span ref={measureRef} className="chat-header__thread-measure" aria-hidden>

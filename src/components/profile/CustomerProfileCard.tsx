@@ -220,6 +220,22 @@ function ChevronRightIcon() {
   );
 }
 
+function ChevronDownIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function ChevronUpIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M18 15l-6-6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 type ProfileAlertSlide = {
   id: string;
   tone: "amber" | "sky";
@@ -354,6 +370,7 @@ export function CustomerProfileCard({ profile, onToggleClientSearch }: CustomerP
   const [tab, setTab] = React.useState<TabKey>("contacts");
   const [policyFilter, setPolicyFilter] = React.useState<PolicyFilter>("active");
   const [channelModal, setChannelModal] = React.useState<ContactChannelModalState>(null);
+  const [profileSectionsExpanded, setProfileSectionsExpanded] = React.useState(true);
   const phone1 = profile.phones[0];
   const phone2 = profile.phones[1];
   const primaryPhone = phone1 ?? phone2;
@@ -438,7 +455,7 @@ export function CustomerProfileCard({ profile, onToggleClientSearch }: CustomerP
 
       <ImportantAlertsCarousel key={profile.clientId} />
 
-      <div style={{ marginTop: 10 }}>
+      <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 8 }}>
         <div
           style={{
             display: "flex",
@@ -448,6 +465,8 @@ export function CustomerProfileCard({ profile, onToggleClientSearch }: CustomerP
             background: "var(--color-bg)",
             border: "1px solid var(--color-border)",
             flexWrap: "wrap",
+            flex: 1,
+            minWidth: 0,
           }}
           role="tablist"
           aria-label="Разделы профиля"
@@ -462,11 +481,39 @@ export function CustomerProfileCard({ profile, onToggleClientSearch }: CustomerP
             Паспортные данные
           </TabButton>
         </div>
+        <button
+          type="button"
+          onClick={() => setProfileSectionsExpanded((v) => !v)}
+          aria-expanded={profileSectionsExpanded}
+          aria-controls="customer-profile-sections-panel"
+          aria-label={
+            profileSectionsExpanded
+              ? "Скрыть данные выбранного раздела"
+              : "Показать данные выбранного раздела"
+          }
+          title={profileSectionsExpanded ? "Скрыть данные раздела" : "Показать данные раздела"}
+          style={{
+            flexShrink: 0,
+            width: 36,
+            height: 36,
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: 10,
+            border: "1px solid var(--color-border)",
+            background: "#fff",
+            color: "var(--color-text-muted)",
+            cursor: "pointer",
+          }}
+        >
+          {profileSectionsExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
+        </button>
       </div>
 
-      <Divider />
+      <div id="customer-profile-sections-panel" role="region" aria-label="Данные раздела" hidden={!profileSectionsExpanded}>
+        <Divider />
 
-      {tab === "contacts" ? (
+        {tab === "contacts" ? (
         <>
           {/* Телефоны — компактно одним блоком */}
           {(phone1 || phone2) ? (
@@ -686,6 +733,7 @@ export function CustomerProfileCard({ profile, onToggleClientSearch }: CustomerP
       ) : (
         <div style={{ fontSize: 13, color: "var(--color-text-muted)", padding: "10px 0" }}>Нет полисов.</div>
       )}
+      </div>
     </div>
     <ContactChannelModalPortal state={channelModal} onClose={() => setChannelModal(null)} />
     </>

@@ -113,7 +113,11 @@ export function ChatHeader({ threadTag, onChangeThreadTag }: ChatHeaderProps) {
         background: "#fff",
       }}
     >
-      <ThreadTagSelect threadTag={threadTag} onChangeThreadTag={onChangeThreadTag} />
+      <ThreadTagSelect
+        variant="toolbar"
+        threadTag={threadTag}
+        onChangeThreadTag={onChangeThreadTag}
+      />
       <div style={{ display: "flex", gap: 8 }}>
         <IconButton label="Перевести тред">
           <TransferThreadIcon />

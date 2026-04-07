@@ -1,4 +1,4 @@
-import type { Conversation } from "../../types/chat";
+import type { Conversation, OperatorInboxChannel } from "../../types/chat";
 import { ConversationListItem } from "./ConversationListItem";
 
 type ConversationListProps = {
@@ -6,10 +6,17 @@ type ConversationListProps = {
   selectedId: string | null;
   onSelect: (id: string) => void;
   compact?: boolean;
+  inboxMode?: OperatorInboxChannel;
 };
 
 /** Список с нативным скроллом; при росте данных сюда подключается виртуализация. */
-export function ConversationList({ conversations, selectedId, onSelect, compact = false }: ConversationListProps) {
+export function ConversationList({
+  conversations,
+  selectedId,
+  onSelect,
+  compact = false,
+  inboxMode,
+}: ConversationListProps) {
   return (
     <div
       role="list"
@@ -27,6 +34,7 @@ export function ConversationList({ conversations, selectedId, onSelect, compact 
             selected={c.id === selectedId}
             onSelect={() => onSelect(c.id)}
             compact={compact}
+            inboxMode={inboxMode}
           />
         </div>
       ))}
