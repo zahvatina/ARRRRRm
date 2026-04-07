@@ -15,6 +15,7 @@ const c1Messages: Message[] = [
     role: "client",
     authorName: "Георгий Матвеев",
     time: "12:52",
+    calendarDate: "07.04.2026",
     body:
       "Добрый день! Полис ОСАГО заканчивается 14 марта. Подскажите, как продлить онлайн и сохранится ли мой класс КБМ 08?",
   },
@@ -23,6 +24,7 @@ const c1Messages: Message[] = [
     role: "agent",
     authorName: agent,
     time: "12:53",
+    calendarDate: "07.04.2026",
     body:
       "Здравствуйте, Георгий! Продление доступно в личном кабинете или по ссылке из SMS. Класс КБМ переносится автоматически, если не было разрыва более 365 дней.",
   },
@@ -31,6 +33,7 @@ const c1Messages: Message[] = [
     role: "client",
     authorName: "Георгий Матвеев",
     time: "12:54",
+    calendarDate: "07.04.2026",
     body: "Отлично, оформлю сегодня вечером. Спасибо!",
   },
   {
@@ -38,6 +41,7 @@ const c1Messages: Message[] = [
     role: "agent",
     authorName: agent,
     time: "12:55",
+    calendarDate: "07.04.2026",
     body: "Спасибо вам за обращение. Если появятся вопросы при оформлении — напишите, поможем.",
   },
 ];
@@ -48,6 +52,7 @@ const c2Messages: Message[] = [
     role: "client",
     authorName: "Дмитрий Казаков",
     time: "12:48",
+    calendarDate: "07.04.2026",
     body:
       "Оформлял страховку путешественника на Таиланд с 10 по 24 марта. Перенёс вылет на 12-е — нужно поправить даты в полисе или заново купить?",
   },
@@ -56,6 +61,7 @@ const c2Messages: Message[] = [
     role: "agent",
     authorName: agent,
     time: "12:50",
+    calendarDate: "07.04.2026",
     body:
       "Дмитрий, добрый день! Если поездка сдвинута, но длительность та же, обычно достаточно внести изменения в действующий полис через заявление в ЛК. Новый полис не нужен, если покрытие не меняется.",
   },
@@ -64,6 +70,7 @@ const c2Messages: Message[] = [
     role: "client",
     authorName: "Дмитрий Казаков",
     time: "12:53",
+    calendarDate: "07.04.2026",
     body:
       "Понял, спасибо. А если я хочу добавить супругу в тот же полис — это отдельная доплата или новый договор?",
   },
@@ -75,6 +82,7 @@ const c3Messages: Message[] = [
     role: "client",
     authorName: "Родион Фомин",
     time: "12:30",
+    calendarDate: "07.04.2026",
     body:
       "Заявлял страховой случай по квартире — затопление соседями. Где посмотреть статус рассмотрения и когда приедет оценщик?",
   },
@@ -83,6 +91,7 @@ const c3Messages: Message[] = [
     role: "agent",
     authorName: agent,
     time: "12:32",
+    calendarDate: "07.04.2026",
     body:
       "Родион, заявление №78432 в работе. Осмотр назначен на завтра, 9:00–13:00 — SMS с контактом специалиста отправим сегодня до 18:00.",
   },
@@ -91,6 +100,7 @@ const c3Messages: Message[] = [
     role: "client",
     authorName: "Родион Фомин",
     time: "12:33",
+    calendarDate: "07.04.2026",
     body: "Хорошо. Фотографии и акт я уже загрузил в личный кабинет — этого достаточно?",
   },
   {
@@ -98,6 +108,7 @@ const c3Messages: Message[] = [
     role: "agent",
     authorName: agent,
     time: "12:35",
+    calendarDate: "07.04.2026",
     body:
       "Да, комплект документов принят. Если оценщик запросит ещё что-то — напишет вам напрямую.",
   },
@@ -109,6 +120,7 @@ const c4Messages: Message[] = [
     role: "client",
     authorName: "Николай Иванов",
     time: "12:18",
+    calendarDate: "23.03.2026",
     body:
       "Добрый день! По премиум-программе: входит ли стоматология в мой полис ДМС и как записаться без направления?",
   },
@@ -117,6 +129,7 @@ const c4Messages: Message[] = [
     role: "agent",
     authorName: agent,
     time: "12:19",
+    calendarDate: "23.03.2026",
     body:
       "Николай, добрый день! По вашему тарифу «Премиум+» стоматология включена в объёме профгигиены и дважды в год консультации терапевта. Запись через приложение или по горячей линии 8800.",
   },
@@ -125,6 +138,7 @@ const c4Messages: Message[] = [
     role: "client",
     authorName: "Николай Иванов",
     time: "12:19",
+    calendarDate: "24.03.2026",
     body: "А если нужно лечение кариеса — это франшиза или отдельное согласование?",
   },
   {
@@ -132,6 +146,7 @@ const c4Messages: Message[] = [
     role: "agent",
     authorName: agent,
     time: "12:20",
+    calendarDate: "24.03.2026",
     body:
       "Лечение кариеса покрывается по программе после согласования кейса — пришлите в ЛК снимок и заключение врача, направление за 1 рабочий день.",
   },
@@ -143,6 +158,7 @@ const c5Messages: Message[] = [
     role: "client",
     authorName: "Роман Носков",
     time: "12:15",
+    calendarDate: "23.03.2026",
     body:
       "Вчера ДТП по КАСКО — машина на ходу, но бампер и фара. Нужна эвакуация или могу сам доехать в сервис из списка?",
   },
@@ -151,6 +167,7 @@ const c5Messages: Message[] = [
     role: "agent",
     authorName: agent,
     time: "12:17",
+    calendarDate: "23.03.2026",
     body:
       "Роман, если ходовая и рулевое в порядке и нет утечек жидкостей, самостоятельный заезд в партнёрский СТО допустим. Зафиксируйте координаты и фото повреждений.",
   },
@@ -159,8 +176,23 @@ const c5Messages: Message[] = [
     role: "client",
     authorName: "Роман Носков",
     time: "12:20",
+    calendarDate: "23.03.2026",
     body:
       "Спасибо. Франшиза по полису 30 000 — она с меня при любом ремонте или только при частичном возмещении?",
+  },
+];
+
+const c6PetrovBody =
+  "Добрый день! Я подавал заявление на возмещение ущерба по КАСКО (страховой случай №SC-2026-00456) три недели назад. Пока не получил никакой информации о статусе рассмотрения. Подскажите, пожалуйста, на каком этапе находится мое обращение и когда ожидать решение? Заранее спасибо.";
+
+const c6Messages: Message[] = [
+  {
+    id: "c6m1",
+    role: "client",
+    authorName: "Иван Петров",
+    time: "14:15",
+    calendarDate: "10.02.2026",
+    body: c6PetrovBody,
   },
 ];
 
@@ -168,6 +200,15 @@ export const mockConversations: Conversation[] = [
   {
     id: "c1",
     customerName: "Георгий Матвеев",
+    threadTag: "ОСАГО",
+    operatorChannels: ["chat", "mail"],
+    mailDetail: {
+      fromEmail: "g.matveev@mail.ru",
+      subject: "Продление ОСАГО и класс КБМ",
+      statusLabel: "Новое",
+      receivedAt: "07.04.2026 12:52",
+      body: c1Messages[0]?.body ?? "",
+    },
     lastPreview: previewFrom(c1Messages),
     lastTime: "12:55",
     messages: c1Messages,
@@ -192,6 +233,8 @@ export const mockConversations: Conversation[] = [
   {
     id: "c2",
     customerName: "Дмитрий Казаков",
+    threadTag: "Путешествия",
+    operatorChannels: ["chat"],
     lastPreview: previewFrom(c2Messages),
     lastTime: "12:53",
     unreadCount: 1,
@@ -217,6 +260,8 @@ export const mockConversations: Conversation[] = [
   {
     id: "c3",
     customerName: "Родион Фомин",
+    threadTag: "Страховой случай",
+    operatorChannels: ["tickets"],
     lastPreview: previewFrom(c3Messages),
     lastTime: "12:35",
     messages: c3Messages,
@@ -241,6 +286,15 @@ export const mockConversations: Conversation[] = [
   {
     id: "c4",
     customerName: "Николай Иванов",
+    threadTag: "ДМС",
+    operatorChannels: ["chat", "mail"],
+    mailDetail: {
+      fromEmail: "test@yandex.ru",
+      subject: "Стоматология в полисе ДМС (Премиум+)",
+      statusLabel: "Новое",
+      receivedAt: "23.03.2026 12:18",
+      body: c4Messages[0]?.body ?? "",
+    },
     lastPreview: previewFrom(c4Messages),
     lastTime: "12:20",
     messages: c4Messages,
@@ -307,6 +361,8 @@ export const mockConversations: Conversation[] = [
   {
     id: "c5",
     customerName: "Роман Носков",
+    threadTag: "КАСКО",
+    operatorChannels: ["tickets", "calls"],
     lastPreview: previewFrom(c5Messages),
     lastTime: "12:20",
     unreadCount: 1,
@@ -327,6 +383,37 @@ export const mockConversations: Conversation[] = [
       segmentLabel: "Стандарт",
       clientSince: "01.02.2021",
       loyaltyPoints: 980,
+    },
+  },
+  {
+    id: "c6",
+    customerName: "Иван Петров",
+    threadTag: "КАСКО",
+    operatorChannels: ["mail"],
+    mailDetail: {
+      fromEmail: "i.petrov@email.com",
+      subject: "Вопрос по страховому случаю",
+      statusLabel: "Новое",
+      receivedAt: "10.02.2026 14:15",
+      body: c6PetrovBody,
+    },
+    lastPreview: previewFrom(c6Messages),
+    lastTime: "14:15",
+    unreadCount: 1,
+    messages: c6Messages,
+    profile: {
+      name: "Иван Петров",
+      email: "i.petrov@email.com",
+      clientId: 4092812,
+      vip: false,
+      phones: [{ number: "+7 (495) 000-00-00", label: "Основной" }],
+      birthDate: "02.05.1987",
+      age: 38,
+      address: "Москва",
+      statusLabel: "Активный",
+      segmentLabel: "Стандарт",
+      clientSince: "10.01.2022",
+      loyaltyPoints: 420,
     },
   },
 ];

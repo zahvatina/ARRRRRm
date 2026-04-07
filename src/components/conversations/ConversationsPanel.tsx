@@ -1,4 +1,4 @@
-import type { Conversation } from "../../types/chat";
+import type { Conversation, OperatorInboxChannels } from "../../types/chat";
 import { ConversationFilters } from "./ConversationFilters";
 import { ConversationList } from "./ConversationList";
 import { QueueStatsFooter } from "./QueueStatsFooter";
@@ -15,6 +15,8 @@ type ConversationsPanelProps = {
     name: string;
     role: string;
     photoUrl?: string;
+    inboxChannels?: OperatorInboxChannels;
+    onInboxChannelsChange?: (next: OperatorInboxChannels) => void;
   };
   activeLabel?: string;
   activeCount: number;

@@ -1,34 +1,22 @@
 import { useMemo, useState } from "react";
+import { WIDGET_CATALOG, type WidgetDef } from "../../features/widgets/widgetCatalog";
 import { Input } from "../ui/Input";
+import { AiAssistantWidget } from "./AiAssistantWidget";
+import { InsuranceClaimsWidget } from "./InsuranceClaimsWidget";
+import { InteractionHistoryWidget } from "./InteractionHistoryWidget";
+import { ClaimSettlementWidget } from "./ClaimSettlementWidget";
+import { KaskoSettlementRequestWidget } from "./KaskoSettlementRequestWidget";
+import { MiniKaskoProductCardWidget } from "./MiniKaskoProductCardWidget";
 
-type WidgetDef = {
-  id: string;
-  title: string;
-  keywords: string[];
+export type WidgetsWorkspaceClientContext = {
+  name: string;
+  clientId: number;
+  segment: string;
 };
 
-const WIDGETS: WidgetDef[] = [
-  {
-    id: "claims",
-    title: "Урегулирование убытка",
-    keywords: ["убыток", "урегулирование", "claims"],
-  },
-  {
-    id: "offer",
-    title: "Оффер для клиента",
-    keywords: ["оффер", "предложение", "offer"],
-  },
-  {
-    id: "events",
-    title: "Страховые события",
-    keywords: ["события", "страховые", "events"],
-  },
-  {
-    id: "history",
-    title: "История обращений",
-    keywords: ["история", "обращений", "history", "обращения"],
-  },
-];
+type WidgetsWorkspaceProps = {
+  clientContext?: WidgetsWorkspaceClientContext;
+};
 
 function CloseIcon() {
   return (
@@ -101,7 +89,45 @@ function Tab({
   );
 }
 
-export function WidgetsWorkspace() {
+function WidgetBody({
+  widgetId,
+  onOpenWidgetById,
+  clientContext,
+}: {
+  widgetId: string;
+  onOpenWidgetById: (id: string) => void;
+  clientContext?: WidgetsWorkspaceClientContext;
+}) {
+  if (widgetId === "ai-assistant") {
+    return <AiAssistantWidget onOpenWidget={onOpenWidgetById} clientContext={clientContext} />;
+  }
+  if (widgetId === "insurance-cases") {
+    return <InsuranceClaimsWidget />;
+  }
+  if (widgetId === "claims") {
+    return <ClaimSettlementWidget />;
+  }
+  if (widgetId === "history") {
+    return <InteractionHistoryWidget />;
+  }
+  if (widgetId === "kasko-settlement-request") {
+    return <KaskoSettlementRequestWidget />;
+  }
+  if (widgetId === "product-mini-kasko") {
+    return <MiniKaskoProductCardWidget onOpenWidget={onOpenWidgetById} />;
+  }
+  const w = WIDGET_CATALOG.find((x) => x.id === widgetId);
+  return (
+    <div>
+      <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>{w?.title ?? "Виджет"}</div>
+      <div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>
+        Здесь будет содержимое виджета. Сейчас это MVP-заглушка.
+      </div>
+    </div>
+  );
+}
+
+export function WidgetsWorkspace({ clientContext }: WidgetsWorkspaceProps) {
   const [query, setQuery] = useState("");
   const [openTabs, setOpenTabs] = useState<WidgetDef[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -109,7 +135,7 @@ export function WidgetsWorkspace() {
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return [];
-    return WIDGETS.filter((w) => {
+    return WIDGET_CATALOG.filter((w) => {
       const hay = [w.title, ...w.keywords].join(" ").toLowerCase();
       return hay.includes(q);
     }).slice(0, 6);
@@ -124,6 +150,11 @@ export function WidgetsWorkspace() {
     });
     setActiveId(w.id);
     setQuery("");
+  };
+
+  const openWidgetById = (id: string) => {
+    const w = WIDGET_CATALOG.find((x) => x.id === id);
+    if (w) openWidget(w);
   };
 
   const closeWidget = (id: string) => {
@@ -221,18 +252,14 @@ export function WidgetsWorkspace() {
 
         <div style={{ marginTop: 10, minHeight: 88 }}>
           {activeTab ? (
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>{activeTab.title}</div>
-              <div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>
-                Здесь будет содержимое виджета «{activeTab.title}». Сейчас это MVP-заглушка.
-              </div>
-            </div>
-          ) : (
-            <div />
-          )}
+            <WidgetBody
+              widgetId={activeTab.id}
+              onOpenWidgetById={openWidgetById}
+              clientContext={clientContext}
+            />
+          ) : null}
         </div>
       </div>
     </section>
   );
 }
-

@@ -1,5 +1,9 @@
 import type { CustomerProfile } from "../../types/chat";
 import React from "react";
+import {
+  ContactChannelModalPortal,
+  type ContactChannelModalState,
+} from "./ContactChannelModals";
 
 type TabKey = "contacts" | "passport" | "policies";
 type PolicyFilter = "active" | "offers" | "completed";
@@ -168,9 +172,7 @@ function ContactRow({
         ) : null}
       </div>
       {actions ? (
-        <div style={{ display: "flex", gap: 10, color: "var(--color-primary)", flexShrink: 0 }}>
-          {actions}
-        </div>
+        <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>{actions}</div>
       ) : null}
     </div>
   );
@@ -181,11 +183,180 @@ type CustomerProfileCardProps = {
   onToggleClientSearch?: () => void;
 };
 
+function telHref(phone: string) {
+  const digits = phone.replace(/[^\d+]/g, "");
+  return digits ? `tel:${digits}` : "#";
+}
+
+function ChannelIconButton({
+  label,
+  onClick,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button type="button" className="customer-profile__channel-btn" aria-label={label} title={label} onClick={onClick}>
+      {children}
+    </button>
+  );
+}
+
+function ChevronLeftIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function ChevronRightIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+type ProfileAlertSlide = {
+  id: string;
+  tone: "amber" | "sky";
+  title: string;
+  text: string;
+};
+
+const PROFILE_ALERT_SLIDES: ProfileAlertSlide[] = [
+  {
+    id: "marketing-opt-out",
+    tone: "amber",
+    title: "Отключена рекламная рассылка",
+    text: "Клиент отозвал согласие на рассылки, необходимо в звонке согласовать с ним возможность отправки уведомлений",
+  },
+  {
+    id: "kasko-renewal",
+    tone: "sky",
+    title: "Внимание",
+    text: "КАСКО истекает через 6 месяцев (15.08.2025). Предложить продление со скидкой 15%",
+  },
+];
+
+function ImportantAlertsCarousel() {
+  const [index, setIndex] = React.useState(0);
+  const touchStartX = React.useRef<number | null>(null);
+  const n = PROFILE_ALERT_SLIDES.length;
+
+  const go = (dir: -1 | 1) => {
+    setIndex((i) => (i + dir + n) % n);
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      go(-1);
+    } else if (e.key === "ArrowRight") {
+      e.preventDefault();
+      go(1);
+    }
+  };
+
+  const activeTone = PROFILE_ALERT_SLIDES[index]?.tone ?? "amber";
+
+  return (
+    <div
+      className={`profile-marketing-banner profile-marketing-banner--tone-${activeTone}`}
+      role="region"
+      aria-label="Важные уведомления"
+      aria-roledescription="карусель"
+    >
+      <div className="profile-marketing-banner__viewport">
+        {n > 1 ? (
+          <div className="profile-marketing-banner__navSlot">
+            <button
+              type="button"
+              className="profile-marketing-banner__nav"
+              onClick={() => go(-1)}
+              aria-label="Предыдущее уведомление"
+            >
+              <ChevronLeftIcon />
+            </button>
+          </div>
+        ) : null}
+
+        <div
+          className="profile-marketing-banner__track-shell"
+          tabIndex={0}
+          onKeyDown={onKeyDown}
+          onTouchStart={(e) => {
+            touchStartX.current = e.touches[0].clientX;
+          }}
+          onTouchEnd={(e) => {
+            if (touchStartX.current == null) return;
+            const x1 = e.changedTouches[0].clientX;
+            const d = x1 - touchStartX.current;
+            if (d > 56) go(-1);
+            else if (d < -56) go(1);
+            touchStartX.current = null;
+          }}
+        >
+          <div
+            className="profile-marketing-banner__track"
+            style={{ transform: `translateX(-${index * 100}%)` }}
+            aria-live="polite"
+          >
+            {PROFILE_ALERT_SLIDES.map((slide) => (
+              <div
+                key={slide.id}
+                className={`profile-marketing-banner__slide profile-marketing-banner__slide--${slide.tone}`}
+              >
+                <p className="profile-marketing-banner__title">{slide.title}</p>
+                <p className="profile-marketing-banner__text">{slide.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {n > 1 ? (
+          <div className="profile-marketing-banner__navSlot">
+            <button
+              type="button"
+              className="profile-marketing-banner__nav"
+              onClick={() => go(1)}
+              aria-label="Следующее уведомление"
+            >
+              <ChevronRightIcon />
+            </button>
+          </div>
+        ) : null}
+      </div>
+
+      {n > 1 ? (
+        <div className="profile-marketing-banner__dots" role="tablist" aria-label="Выбор уведомления">
+          {PROFILE_ALERT_SLIDES.map((slide, i) => (
+            <button
+              key={slide.id}
+              type="button"
+              role="tab"
+              aria-selected={i === index}
+              aria-label={`Уведомление ${i + 1} из ${n}`}
+              className={`profile-marketing-banner__dot ${i === index ? "profile-marketing-banner__dot--active" : ""}`}
+              onClick={() => setIndex(i)}
+            />
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export function CustomerProfileCard({ profile, onToggleClientSearch }: CustomerProfileCardProps) {
   const [tab, setTab] = React.useState<TabKey>("contacts");
   const [policyFilter, setPolicyFilter] = React.useState<PolicyFilter>("active");
+  const [channelModal, setChannelModal] = React.useState<ContactChannelModalState>(null);
   const phone1 = profile.phones[0];
   const phone2 = profile.phones[1];
+  const primaryPhone = phone1 ?? phone2;
   const policies = profile.policies ?? [];
   const filteredPolicies = policies.filter((p) => {
     const s = p.status.toLowerCase();
@@ -195,6 +366,7 @@ export function CustomerProfileCard({ profile, onToggleClientSearch }: CustomerP
   });
 
   return (
+    <>
     <div style={{ padding: "12px 16px", background: "#fff" }}>
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
         <div style={{ minWidth: 0 }}>
@@ -264,6 +436,8 @@ export function CustomerProfileCard({ profile, onToggleClientSearch }: CustomerP
         </button>
       </div>
 
+      <ImportantAlertsCarousel key={profile.clientId} />
+
       <div style={{ marginTop: 10 }}>
         <div
           style={{
@@ -303,30 +477,64 @@ export function CustomerProfileCard({ profile, onToggleClientSearch }: CustomerP
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   {phone1 ? (
-                    <div style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "4px 0" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        gap: 8,
+                        padding: "4px 0",
+                      }}
+                    >
                       <div style={{ minWidth: 0 }}>
                         <div style={{ fontSize: 13, fontWeight: 400, lineHeight: 1.25 }}>
                           {phone1.number}{" "}
-                          <span style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
-                            {phone1.label}
-                          </span>
+                          <span style={{ fontSize: 11, color: "var(--color-text-muted)" }}>{phone1.label}</span>
                         </div>
+                      </div>
+                      <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
+                        <ChannelIconButton label="Отправить SMS" onClick={() => setChannelModal({ kind: "sms", to: phone1.number })}>
+                          <ChatBubbleIcon />
+                        </ChannelIconButton>
+                        <a
+                          href={telHref(phone1.number)}
+                          className="customer-profile__channel-btn"
+                          aria-label="Позвонить"
+                          title="Позвонить"
+                        >
+                          <PhoneIcon />
+                        </a>
                       </div>
                     </div>
                   ) : null}
                   {phone2 ? (
-                    <div style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "4px 0" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        gap: 8,
+                        padding: "4px 0",
+                      }}
+                    >
                       <div style={{ minWidth: 0 }}>
                         <div style={{ fontSize: 13, fontWeight: 400, lineHeight: 1.25 }}>
                           {phone2.number}{" "}
-                          <span style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
-                            {phone2.label}
-                          </span>
+                          <span style={{ fontSize: 11, color: "var(--color-text-muted)" }}>{phone2.label}</span>
                         </div>
                       </div>
-                      <div style={{ display: "flex", gap: 10, color: "var(--color-primary)", flexShrink: 0 }}>
-                        <ChatBubbleIcon />
-                        <SendIcon />
+                      <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
+                        <ChannelIconButton label="Отправить SMS" onClick={() => setChannelModal({ kind: "sms", to: phone2.number })}>
+                          <ChatBubbleIcon />
+                        </ChannelIconButton>
+                        <a
+                          href={telHref(phone2.number)}
+                          className="customer-profile__channel-btn"
+                          aria-label="Позвонить"
+                          title="Позвонить"
+                        >
+                          <PhoneIcon />
+                        </a>
                       </div>
                     </div>
                   ) : null}
@@ -340,8 +548,20 @@ export function CustomerProfileCard({ profile, onToggleClientSearch }: CustomerP
             primary={profile.email}
             actions={
               <>
-                <ChatBubbleIcon />
-                <SendIcon />
+                {primaryPhone ? (
+                  <ChannelIconButton
+                    label="Отправить SMS на номер клиента"
+                    onClick={() => setChannelModal({ kind: "sms", to: primaryPhone.number })}
+                  >
+                    <ChatBubbleIcon />
+                  </ChannelIconButton>
+                ) : null}
+                <ChannelIconButton
+                  label="Отправить e-mail"
+                  onClick={() => setChannelModal({ kind: "email", to: profile.email })}
+                >
+                  <SendIcon />
+                </ChannelIconButton>
               </>
             }
           />
@@ -466,8 +686,9 @@ export function CustomerProfileCard({ profile, onToggleClientSearch }: CustomerP
       ) : (
         <div style={{ fontSize: 13, color: "var(--color-text-muted)", padding: "10px 0" }}>Нет полисов.</div>
       )}
-
     </div>
+    <ContactChannelModalPortal state={channelModal} onClose={() => setChannelModal(null)} />
+    </>
   );
 }
 

@@ -87,7 +87,14 @@ export function CustomerProfilePanel({ profile }: CustomerProfilePanelProps) {
               profile={profile}
               onToggleClientSearch={() => setClientSearchOpen((v) => !v)}
             />
-            <WidgetsWorkspace key={profile.clientId} />
+            <WidgetsWorkspace
+              key={profile.clientId}
+              clientContext={{
+                name: profile.name,
+                clientId: profile.clientId,
+                segment: profile.segmentLabel,
+              }}
+            />
           </>
         )}
       </div>

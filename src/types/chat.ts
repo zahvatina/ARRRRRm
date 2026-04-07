@@ -1,3 +1,8 @@
+/** Каналы приёма обращений в очереди оператора */
+export type OperatorInboxChannel = "chat" | "tickets" | "calls" | "mail";
+
+export type OperatorInboxChannels = Record<OperatorInboxChannel, boolean>;
+
 export type MessageRole = "client" | "agent" | "system";
 
 export type Message = {
@@ -6,6 +11,8 @@ export type Message = {
   authorName: string;
   body: string;
   time: string;
+  /** Календарный день сообщения (DD.MM.YYYY) для разделителей в ленте */
+  calendarDate?: string;
 };
 
 export type CustomerProfile = {
@@ -39,9 +46,24 @@ export type CustomerProfile = {
   }[];
 };
 
+/** Данные входящего письма для отображения вместо ленты чата. */
+export type MailThreadDetail = {
+  fromEmail: string;
+  subject: string;
+  statusLabel: string;
+  /** Дата и время письма, напр. «10.02.2026 14:15» */
+  receivedAt: string;
+  body: string;
+};
+
 export type Conversation = {
   id: string;
   customerName: string;
+  threadTag: string;
+  /** К каким каналам относится обращение (для фильтра в профиле оператора). По умолчанию — чат. */
+  operatorChannels?: OperatorInboxChannel[];
+  /** Если задано и активен почтовый режим — блок «обработка входящего обращения». */
+  mailDetail?: MailThreadDetail;
   avatarUrl?: string;
   lastPreview: string;
   lastTime: string;

@@ -1,12 +1,22 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import type { OperatorInboxChannel, OperatorInboxChannels } from "../../types/chat";
+import {
+  DEFAULT_OPERATOR_INBOX,
+  OPERATOR_CHANNEL_LABELS,
+} from "../../features/chat/model/operatorInbox";
 import { Avatar } from "../ui/Avatar";
 
 type OperatorStatus = "active" | "noChats" | "inactive";
+
+const CHANNEL_ORDER: OperatorInboxChannel[] = ["chat", "tickets", "calls", "mail"];
 
 type OperatorMenuProps = {
   name: string;
   role: string;
   photoUrl?: string;
+  /** Управляемый фильтр каналов очереди (если не передан — локальное состояние). */
+  inboxChannels?: OperatorInboxChannels;
+  onInboxChannelsChange?: (next: OperatorInboxChannels) => void;
 };
 
 function useOnClickOutside(
@@ -148,10 +158,29 @@ function statusLabel(s: OperatorStatus) {
   }
 }
 
-export function OperatorMenu({ name, role, photoUrl }: OperatorMenuProps) {
+export function OperatorMenu({
+  name,
+  role,
+  photoUrl,
+  inboxChannels: inboxProp,
+  onInboxChannelsChange,
+}: OperatorMenuProps) {
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState<OperatorStatus>("active");
   const [soundOn, setSoundOn] = useState(true);
+  const [internalInbox, setInternalInbox] = useState<OperatorInboxChannels>(DEFAULT_OPERATOR_INBOX);
+  const inbox = inboxProp ?? internalInbox;
+
+  const setInbox = (next: OperatorInboxChannels) => {
+    if (onInboxChannelsChange) onInboxChannelsChange(next);
+    else setInternalInbox(next);
+  };
+
+  const toggleInboxChannel = (key: OperatorInboxChannel) => {
+    const next = { ...inbox, [key]: !inbox[key] };
+    if (!Object.values(next).some(Boolean)) return;
+    setInbox(next);
+  };
   const wrapperRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -272,6 +301,30 @@ export function OperatorMenu({ name, role, photoUrl }: OperatorMenuProps) {
                 ) : null}
               </button>
             ))}
+          </div>
+
+          <div className="operator-menu__divider" />
+
+          <div className="operator-menu__section">
+            <div className="operator-menu__section-label">Каналы приёма</div>
+            <div className="operator-menu__channels" role="group" aria-label="Каналы очереди">
+              {CHANNEL_ORDER.map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  role="menuitemcheckbox"
+                  aria-checked={inbox[key]}
+                  className={`operator-menu__channel ${inbox[key] ? "operator-menu__channel--on" : ""}`}
+                  onClick={() => toggleInboxChannel(key)}
+                >
+                  {OPERATOR_CHANNEL_LABELS[key]}
+                </button>
+              ))}
+            </div>
+            <p className="operator-menu__channels-hint">
+              Выберите чат, заявки, звонки и/или почту — список слева показывает обращения по отмеченным
+              каналам.
+            </p>
           </div>
 
           <div className="operator-menu__divider" />

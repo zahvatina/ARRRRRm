@@ -1,4 +1,5 @@
 import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
+import { getReplyTemplates, scoreTemplatesForDialog } from "../../features/chat/model/templateRecommendationScores";
 import { SendButton } from "./SendButton";
 
 type ComposerProps = {
@@ -7,6 +8,9 @@ type ComposerProps = {
   onSend: () => void;
   placeholder?: string;
   disabled?: boolean;
+  /** Тематика треда и последнее сообщение клиента — для оценки релевантности шаблонов. */
+  threadTag?: string;
+  lastClientMessage?: string;
 };
 
 type ComposerMode = "hint" | "templates";
@@ -43,7 +47,7 @@ function XIcon() {
 }
 
 export const Composer = forwardRef<HTMLTextAreaElement, ComposerProps>(function Composer(
-  { value, onChange, onSend, placeholder = "Введите сообщение...", disabled },
+  { value, onChange, onSend, placeholder = "Введите сообщение...", disabled, threadTag = "Другое", lastClientMessage = "" },
   ref,
 ) {
   const [mode, setMode] = useState<ComposerMode>("hint");
@@ -56,15 +60,13 @@ export const Composer = forwardRef<HTMLTextAreaElement, ComposerProps>(function 
     else if (ref) ref.current = node;
   };
 
-  const templates = useMemo(
-    () => [
-      "Понял(а) вас. Уточните, пожалуйста, номер полиса и дату страхового события.",
-      "Спасибо! Сейчас проверю информацию по договору и вернусь с ответом.",
-      "Чтобы помочь быстрее, пришлите, пожалуйста, фото/скан документов (полис, паспорт, заявление).",
-      "Я передам обращение профильному специалисту. Ожидайте, пожалуйста, ответ в этом чате.",
-    ],
-    [],
-  );
+  const templatesRanked = useMemo(() => {
+    const texts = [...getReplyTemplates()];
+    const scores = scoreTemplatesForDialog(threadTag, lastClientMessage);
+    const rows = texts.map((text, i) => ({ text, matchPct: scores[i] ?? 70 }));
+    rows.sort((a, b) => b.matchPct - a.matchPct);
+    return rows;
+  }, [threadTag, lastClientMessage]);
 
   const hintText = useMemo(
     () => "Ожидайте доставку сегодня 21.03 в интервале 14:30 — 16:00. Курьер свяжется с вами за полчаса.",
@@ -161,7 +163,7 @@ export const Composer = forwardRef<HTMLTextAreaElement, ComposerProps>(function 
 
       {mode === "templates" && templatesOpen ? (
         <div className="composer-templates" role="listbox" aria-label="Шаблоны ответов">
-          {templates.map((t) => (
+          {templatesRanked.map(({ text: t, matchPct }) => (
             <button
               key={t}
               type="button"
@@ -174,9 +176,11 @@ export const Composer = forwardRef<HTMLTextAreaElement, ComposerProps>(function 
                 queueMicrotask(() => localInputRef.current?.focus());
               }}
               disabled={disabled}
-              title="Вставить в поле"
+              aria-label={`Шаблон: совпадение ${matchPct}%. ${t.slice(0, 120)}${t.length > 120 ? "…" : ""}`}
+              title={`Совпадение с рекомендациями: ${matchPct}%. Вставить в поле.`}
             >
-              {t}
+              <span className="composer-templates__match">{matchPct}%</span>
+              <span className="composer-templates__text">{t}</span>
             </button>
           ))}
         </div>
